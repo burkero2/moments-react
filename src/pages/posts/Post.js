@@ -3,12 +3,10 @@ import styles from "../../styles/Post.module.css";
 import { useCurrentUser } from "../../contexts/CurrentUserContext";
 import { Card, Media, OverlayTrigger, Tooltip } from "react-bootstrap";
 import { Link } from "react-router-dom";
- 
 import Avatar from "../../components/Avatar";
 import { axiosRes } from "../../api/axiosDefaults";
 import { MoreDropdown } from "../../components/MoreDropdown";
 import { useHistory } from "react-router";
- 
 const Post = (props) => {
   const {
     id,
@@ -25,11 +23,9 @@ const Post = (props) => {
     PostPage,
     setPosts,
   } = props;
- 
   const currentUser = useCurrentUser();
   const is_owner = currentUser?.username === owner;
   const history = useHistory();
- 
   const handleLike = async () => {
     try {
       const { data } = await axiosRes.post("/likes/", { post: id });
@@ -45,7 +41,6 @@ const Post = (props) => {
       console.log(err);
     }
   };
- 
   const handleUnlike = async () => {
     try {
       await axiosRes.delete(`/likes/${like_id}/`);
@@ -61,11 +56,10 @@ const Post = (props) => {
       console.log(err);
     }
   };
- 
   const handleEdit = () => {
     history.push(`/posts/${id}/edit`);
   };
- 
+
   const handleDelete = async () => {
     try {
       await axiosRes.delete(`/posts/${id}/`);
@@ -74,7 +68,7 @@ const Post = (props) => {
       console.log(err);
     }
   };
- 
+  
   return (
     <Card className={styles.Post}>
       <Card.Body>
@@ -134,5 +128,4 @@ const Post = (props) => {
     </Card>
   );
 };
- 
 export default Post;
