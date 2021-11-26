@@ -26,6 +26,8 @@ const Post = (props) => {
   const currentUser = useCurrentUser();
   const is_owner = currentUser?.username === owner;
   const history = useHistory();
+
+
   const handleLike = async () => {
     try {
       const { data } = await axiosRes.post("/likes/", { post: id });
@@ -41,6 +43,8 @@ const Post = (props) => {
       console.log(err);
     }
   };
+
+
   const handleUnlike = async () => {
     try {
       await axiosRes.delete(`/likes/${like_id}/`);
@@ -56,6 +60,7 @@ const Post = (props) => {
       console.log(err);
     }
   };
+  
   const handleEdit = () => {
     history.push(`/posts/${id}/edit`);
   };

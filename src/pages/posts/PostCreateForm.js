@@ -1,45 +1,46 @@
 import React, { useRef, useState } from "react";
-import { useHistory } from "react-router";
-
-import Alert from "react-bootstrap/Alert";
+ 
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Image from "react-bootstrap/Image";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import Container from "react-bootstrap/Container";
-
+import Alert from "react-bootstrap/Alert";
+import Image from "react-bootstrap/Image";
+ 
 import Asset from "../../components/Asset";
-
-import { axiosReq } from "../../api/axiosDefaults";
-// import { useRedirect } from "../../hooks/useRedirect";
+ 
 import Upload from "../../assets/upload.png";
-
+ 
 import styles from "../../styles/PostCreateEditForm.module.css";
 import appStyles from "../../App.module.css";
 import btnStyles from "../../styles/Button.module.css";
-
+ 
+import { useHistory } from "react-router";
+import { axiosReq } from "../../api/axiosDefaults";
+import { useRedirectAuthenticated } from "../../hooks/useRedirectAuthenticated";
+ 
 function PostCreateForm() {
-  // useRedirect();
-  const history = useHistory();
-  const imageInput = useRef();
-
+  useRedirectAuthenticated(false);
+  const [errors, setErrors] = useState({});
+ 
   const [postData, setPostData] = useState({
     title: "",
     content: "",
     image: "",
   });
   const { title, content, image } = postData;
-
-  const [errors, setErrors] = useState({});
-
+ 
+  const imageInput = useRef(null);
+  const history = useHistory();
+ 
   const handleChange = (event) => {
     setPostData({
       ...postData,
       [event.target.name]: event.target.value,
     });
   };
-
+ 
   const handleChangeImage = (event) => {
     if (event.target.files.length) {
       URL.revokeObjectURL(image);
@@ -49,32 +50,35 @@ function PostCreateForm() {
       });
     }
   };
-
+ 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = new FormData();
+ 
     formData.append("title", title);
     formData.append("content", content);
     formData.append("image", imageInput.current.files[0]);
-
+ 
     try {
       const { data } = await axiosReq.post("/posts/", formData);
       history.push(`/posts/${data.id}`);
     } catch (err) {
       console.log(err);
-      setErrors(err.response?.data);
+      if (err.response?.status !== 401) {
+        setErrors(err.response?.data);
+      }
     }
   };
-
+ 
   const textFields = (
     <div className="text-center">
       <Form.Group>
         <Form.Label>Title</Form.Label>
         <Form.Control
           type="text"
+          name="title"
           value={title}
           onChange={handleChange}
-          name="title"
         />
       </Form.Group>
       {errors?.title?.map((message, idx) => (
@@ -82,15 +86,15 @@ function PostCreateForm() {
           {message}
         </Alert>
       ))}
-      {/* ERRORS */}
+ 
       <Form.Group>
         <Form.Label>Content</Form.Label>
         <Form.Control
           as="textarea"
           rows={6}
+          name="content"
           value={content}
           onChange={handleChange}
-          name="content"
         />
       </Form.Group>
       {errors?.content?.map((message, idx) => (
@@ -98,6 +102,7 @@ function PostCreateForm() {
           {message}
         </Alert>
       ))}
+ 
       <Button
         className={`${btnStyles.Button} ${btnStyles.Blue}`}
         onClick={() => history.goBack()}
@@ -109,7 +114,7 @@ function PostCreateForm() {
       </Button>
     </div>
   );
-
+ 
   return (
     <Form onSubmit={handleSubmit}>
       <Row>
@@ -143,12 +148,12 @@ function PostCreateForm() {
                   />
                 </Form.Label>
               )}
-
+ 
               <Form.File
                 id="image-upload"
-                ref={imageInput}
                 accept="image/*"
                 onChange={handleChangeImage}
+                ref={imageInput}
               />
             </Form.Group>
             {errors?.image?.map((message, idx) => (
@@ -156,6 +161,7 @@ function PostCreateForm() {
                 {message}
               </Alert>
             ))}
+ 
             <div className="d-md-none">{textFields}</div>
           </Container>
         </Col>
@@ -166,5 +172,5 @@ function PostCreateForm() {
     </Form>
   );
 }
-
+ 
 export default PostCreateForm;
